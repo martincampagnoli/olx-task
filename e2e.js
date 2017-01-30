@@ -5,9 +5,14 @@ patternLockAppDev.run(function($httpBackend) {
 	var customizedPattern = '';
 
 	// returns the current default pattern if it has not been changed
-	$httpBackend.whenGET('/pattern').respond(function(){
-		if(customizedPattern == '') return [200, defaultPattern, {}];
-		return [200, customizedPattern, {}];
+	// change the return number to 500+ to throw an error
+	$httpBackend.whenPOST('/validatePattern').respond(function(method, url, data){
+		if(customizedPattern == '') {
+			var response = data == defaultPattern;
+			return [200, response , {}];
+		}
+		var response = data == customizedPattern;
+		return [200, response , {}];	
 	});
 
 	// update the pattern for the app

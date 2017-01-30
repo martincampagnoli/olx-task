@@ -2,12 +2,12 @@ patternLockApp.service('baseService', ['$q', '$http',
     function ($q, $http) {
 
         return {
-			getPattern: function () {
-					var url = "/pattern",
+			validatePattern: function (pattern) {
+					var url = "/validatePattern",
 					
 					deferred = $q.defer();
 
-					$http.get(url)
+					$http.post(url, pattern)
 						 .success(function (data) { deferred.resolve(data); })
 						 .error(function (data, status) { deferred.reject({ data: data, status: status }); });
 					return deferred.promise;

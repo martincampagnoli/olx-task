@@ -16,10 +16,9 @@ patternLockApp.controller('baseController',['$scope','$timeout', 'baseService', 
 				$scope.currentPattern = $scope.inputPattern;
 				UIHelper.blockUI();
 				$timeout(function(){
-					baseService.getPattern().then(
-						function(data){
-							$scope.savedPattern = data;
-							if ($scope.comparePattern($scope.currentPattern, $scope.savedPattern)){
+					baseService.validatePattern($scope.currentPattern).then(
+						function(response){
+							if (response){
 								$scope.changeState(common.constants.states.unlocked);
 							}
 							else{
@@ -40,7 +39,7 @@ patternLockApp.controller('baseController',['$scope','$timeout', 'baseService', 
 					if($scope.currentState !== common.constants.states.unlocked) 
 						$scope.currentMessage = common.constants.messages.defaultMessage;
 					$scope.$broadcast(common.constants.broadcastMessages.reset);
-				},800);
+				},1000);
 			};
 					
 			$scope.changeState = function(str){
