@@ -29,13 +29,13 @@ patternLockApp.directive('patternLock', function() {
 			});
 			
 			//sets the event handler for the mouse up event
-			elem.bind('mouseup', function(){
+			elem.bind('mouseup touchend', function(){
 				switch (scope.currentState){
 					case common.constants.states.locked: scope.submitPattern(); break;
 					case common.constants.states.change: scope.saveFirstPattern(); break;
 					case common.constants.states.confirm: scope.confirmPattern(); break;
 				}
-			})
+			});
         }
     };
 });
