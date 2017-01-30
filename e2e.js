@@ -5,7 +5,7 @@ patternLockAppDev.run(function($httpBackend) {
 	var customizedPattern = '';
 
 	// returns the current default pattern if it has not been changed
-	// change the return number to 500+ to throw an error
+	// changes the return number to 500+ to throw an error
 	$httpBackend.whenPOST('/validatePattern').respond(function(method, url, data){
 		if(customizedPattern == '') {
 			var response = data == defaultPattern;
@@ -15,7 +15,7 @@ patternLockAppDev.run(function($httpBackend) {
 		return [200, response , {}];	
 	});
 
-	// update the pattern for the app
+	// updates the pattern for the app
 	$httpBackend.whenPOST('/storePattern').respond(function(method, url, data) {
 		if (data.length >= common.constants.common.minLength){
 			customizedPattern = angular.fromJson(data);
