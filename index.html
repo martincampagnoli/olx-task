@@ -1,0 +1,98 @@
+﻿<!DOCTYPE html>
+<html lang="en" class="no-js" ng-app="patternLockAppE2E">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+<meta name="description" content="l" />
+<meta name="keywords" content="">
+<meta name="author" content="martin" />
+<!--[if IE]>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<![endif]-->
+<title>OLX Task - Pattern Lock App</title>
+<!-- BOOTSTRAP CORE CSS -->
+<link href="css/bootstrap.css" rel="stylesheet" />
+<!-- PATTERN DISPLAY CSS -->
+<link href="css/patternLock.css" rel="stylesheet" />
+<!-- CUSTOM CSS -->
+<link href="css/style-green.css" rel="stylesheet" />
+<!-- FONT AWESOME ICONS STYLES -->
+<link href="css/font-awesome.css" rel="stylesheet" />
+
+<!-- ANGULAR FILES -->  
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.4.12/angular.js"></script>
+<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/angularjs/1.4.12/angular-mocks.js"></script>
+
+</head>
+<body ng-controller="baseController">
+
+<div id="home" style="padding-bottom: 0px;padding-top: 0px;">
+<div class="navbar navbar-inverse navbar-fixed-top scroll-me" id="menu-section">
+	<div class="container">
+		<div class="navbar-header">
+			<a class="navbar-brand" href="#">
+			OLX Task - Pattern Lock App		
+			</a>
+		</div>	
+	</div>
+</div>
+	<section id="work" >
+		<div class="container">
+			<div class="row text-center">
+				<div class="col-xs-12 col-sm-4 col-md-4 col-lg-4 html">
+					<div ng-show="debug">
+						<span>DEBUG INFO</span><br><br>
+						<span>Current State : {{currentState}}</span>
+					</div>
+				</div>
+				<div class="col-xs-12 col-sm-4 col-md-4 col-lg-4 html" id="contact">
+					<span>{{currentMessage}}</span>
+					<div class="contact-wrapper" id="patternContainer" pattern-lock>
+					
+					</div>
+				</div>
+
+			</div>
+			<div class="row animate-in" data-anim-type="fade-in-up">
+				<div class="col-xs-12 col-sm-4 col-md-4 col-lg-4 html"></div>
+				<div class="col-xs-12 col-sm-4 col-md-4 col-lg-4 html" ng-show="currentState == stateUnlocked">
+					<button ng-click="refreshDisplay()" class="btn button-custom btn-custom-one" >Lock again</button>
+					<button ng-click="changePattern()" class="btn button-custom btn-custom-one" >Change Pattern</button>
+				</div>
+			</div>
+		</div>
+	</section>	
+</div>
+
+
+
+<!-- JAVASCRIPT FILES PLACED AT THE BOTTOM TO REDUCE THE LOADING TIME -->
+
+<!-- CORE JQUERY -->
+<script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
+<!-- BOOTSTRAP SCRIPTS -->
+<script src="libs/bootstrap.js"></script>
+<!-- VEGAS SLIDESHOW SCRIPTS -->
+<script src="libs/vegas/jquery.vegas.min.js"></script>
+<!-- CUSTOM SCRIPTS -->
+<script src="libs/custom.js"></script>
+<!-- PATTERN LOCK SCRIPT -->
+<script src="libs/patternLock/patternLock.min.js"></script>
+<!-- BLOCKUI PLUGIN -->
+<script src="libs/jquery.blockui.js"></script>
+<!-- ANGULAR APP -->
+<script src="app.js"></script>
+<script src="e2e.js"></script>
+<script src="js/controllers/base.controller.js"></script>
+<script src="js/services/base.service.js"></script>
+<script src="js/directives/common.directives.js"></script>
+<script src="js/common/constants.js"></script>
+<script src="js/common/helpers.js"></script>
+
+
+
+
+</body>
+
+</html>
+
