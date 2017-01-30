@@ -1,19 +1,36 @@
 
 describe("Base Controller specs", function() {
- 
+	var mockBaseService, errorModeService, callback, errorCallback;
+
     beforeEach(module('patternLockApp'));
   
     var scope;
     beforeEach(inject(function($rootScope, $controller,_$timeout_) {
         scope = $rootScope.$new();
 		$timeout =  _$timeout_;
+		mockBaseService = jasmine.createSpy('baseService');
         $controller("baseController", {
             $scope: scope,
-			$timeout: $timeout
+			$timeout: $timeout,
+			baseService: mockBaseService
         });
     }));
  
-    it("should change the state back to 'locked' after a refresh", function() {
+    it("should change the state to 'confirm' and save first pattern after calling saveFirstPattern method", function() {
+        spyOn(scope, 'changeState');
+		spyOn(UIHelper, 'blockUI');
+		spyOn(UIHelper, 'unblockUI');
+		scope.inputPattern = '1234';
+	
+		scope.saveFirstPattern();
+		$timeout.flush();
+	
+		expect(scope.changeState).toHaveBeenCalled();
+		expect(scope.changeState).toHaveBeenCalledWith(common.constants.states.confirm);
+		expect(scope.firstPattern).toEqual(scope.inputPattern);
+    });
+	
+	it("should change the state back to 'locked' after a refresh", function() {
         spyOn(scope, 'changeState');
 		spyOn(UIHelper, 'blockUI');
 		spyOn(UIHelper, 'unblockUI');
@@ -95,6 +112,157 @@ describe("Base Controller specs", function() {
 		result = scope.comparePattern(pattern1,pattern2);
 
 		expect(result).toBe(true);
+    });
+	
+	it("should unlock the app if the pattern entered is equal to default or stored", function() {
+		mockBaseService.validatePattern = jasmine.createSpy('validatePattern').and.returnValue({ then: function (callback) { callback(true); } });
+
+		spyOn(UIHelper, 'blockUI');
+		spyOn(UIHelper, 'unblockUI');
+		spyOn(scope, 'changeState');
+		scope.inputPattern = '1234';
+	
+		scope.submitPattern();
+		$timeout.flush();
+		scope.$digest;
+		
+		expect(scope.changeState).toHaveBeenCalled();
+		expect(scope.changeState).toHaveBeenCalledWith(common.constants.states.unlocked);
+    });
+	
+	it("should disable the pattern keyboard is the app is unlocked", function() {
+		mockBaseService.validatePattern = jasmine.createSpy('validatePattern').and.returnValue({ then: function (callback) { callback(true); } });
+
+		spyOn(UIHelper, 'blockUI');
+		spyOn(UIHelper, 'unblockUI');
+		spyOn(scope, '$broadcast');
+		scope.inputPattern = '1234';
+	
+		scope.submitPattern();
+		$timeout.flush();
+		scope.$digest;
+		
+		expect(scope.$broadcast).toHaveBeenCalled();
+		expect(scope.$broadcast).toHaveBeenCalledWith(common.constants.broadcastMessages.disable);
+    });
+	
+	it("should enable the pattern keyboard again is the app is unlocked and the user choose to change pattern", function() {
+		spyOn(UIHelper, 'blockUI');
+		spyOn(UIHelper, 'unblockUI');
+		spyOn(scope, '$broadcast');
+		scope.inputPattern = '1234';
+	
+		scope.changePattern();
+		$timeout.flush();
+		
+		expect(scope.$broadcast).toHaveBeenCalled();
+		expect(scope.$broadcast).toHaveBeenCalledWith(common.constants.broadcastMessages.enable);
+    });
+	
+	it("should keep the app locked if the pattern entered is not equal to default or stored", function() {
+		mockBaseService.validatePattern = jasmine.createSpy('validatePattern').and.returnValue({ then: function (callback) { callback(false); } });
+
+		spyOn(UIHelper, 'blockUI');
+		spyOn(UIHelper, 'unblockUI');
+		spyOn(scope, 'changeState');
+		spyOn(scope, '$broadcast');
+		scope.inputPattern = '1234';
+		errorModeService = false;
+	
+		scope.submitPattern();
+		$timeout.flush();
+		scope.$digest;
+		
+		expect(scope.changeState).not.toHaveBeenCalled();
+		expect(scope.$broadcast).toHaveBeenCalled();
+		expect(scope.$broadcast).toHaveBeenCalledWith(common.constants.broadcastMessages.error);
+    });
+	
+	it("should keep the app locked and display an error if the 'backend' fails", function() {
+		mockBaseService.validatePattern = jasmine.createSpy('validatePattern').and.returnValue({ then: function (callback, errorCallback) { errorCallback({ status: 501 }); } });
+		
+		spyOn(UIHelper, 'blockUI');
+		spyOn(UIHelper, 'unblockUI');
+		spyOn(scope, 'changeState');
+		spyOn(scope, '$broadcast');
+		scope.inputPattern = '1234';
+	
+		scope.submitPattern();
+		$timeout.flush();
+		scope.$digest;
+		
+		expect(scope.changeState).not.toHaveBeenCalled();
+		expect(scope.$broadcast).toHaveBeenCalled();
+		expect(scope.$broadcast).toHaveBeenCalledWith(common.constants.broadcastMessages.error);
+    });
+	
+	it("should store the new pattern when it is entered twice the same and meet the criteria", function() {
+		mockBaseService.storePattern = jasmine.createSpy('storePattern').and.returnValue({ then: function (callback) { callback(true); } });
+		
+		spyOn(UIHelper, 'blockUI');
+		spyOn(UIHelper, 'unblockUI');
+		scope.firstPattern = '1234';
+		scope.inputPattern = '1234';
+	
+		scope.confirmPattern();
+		$timeout.flush();
+		scope.$digest;
+		
+		expect(scope.currentMessage).toEqual(common.constants.messages.rightPattern);
+    });
+	
+	it("should not store the new pattern when it is entered twice but they are not the same and display an error in keyboard", function() {
+		mockBaseService.storePattern = jasmine.createSpy('storePattern').and.returnValue({ then: function (callback) { callback(true); } });
+		
+		spyOn(UIHelper, 'blockUI');
+		spyOn(UIHelper, 'unblockUI');
+		spyOn(scope, '$broadcast');
+		scope.firstPattern = '1111';
+		scope.inputPattern = '1234';
+	
+		scope.confirmPattern();
+		$timeout.flush();
+		scope.$digest;
+		
+		expect(scope.currentMessage).toEqual(common.constants.messages.mismatchPattern);
+		expect(scope.$broadcast).toHaveBeenCalled();
+		expect(scope.$broadcast).toHaveBeenCalledWith(common.constants.broadcastMessages.error);
+    });
+	
+	it("should not store the new pattern when it is entered twice but its lenght is less than 3, and display an error in keyboard", function() {
+		mockBaseService.storePattern = jasmine.createSpy('storePattern').and.returnValue({ then: function (callback, errorCallback) { errorCallback({ status: 501 }); } });
+		
+		spyOn(UIHelper, 'blockUI');
+		spyOn(UIHelper, 'unblockUI');
+		spyOn(scope, '$broadcast');
+		scope.firstPattern = '11';
+		scope.inputPattern = '11';
+	
+		scope.confirmPattern();
+		$timeout.flush();
+		scope.$digest;
+		
+		expect(scope.currentMessage).toEqual(common.constants.messages.patternTooShort);
+		expect(scope.$broadcast).toHaveBeenCalled();
+		expect(scope.$broadcast).toHaveBeenCalledWith(common.constants.broadcastMessages.error);
+    });
+	
+	it("should not store the new pattern when the 'backend' fails, and display an error in keyboard", function() {
+		mockBaseService.storePattern = jasmine.createSpy('storePattern').and.returnValue({ then: function (callback, errorCallback) { errorCallback({ status: 500 }); } });
+		
+		spyOn(UIHelper, 'blockUI');
+		spyOn(UIHelper, 'unblockUI');
+		spyOn(scope, '$broadcast');
+		scope.firstPattern = '1111';
+		scope.inputPattern = '1111';
+	
+		scope.confirmPattern();
+		$timeout.flush();
+		scope.$digest;
+		
+		expect(scope.currentMessage).toEqual(common.constants.messages.errorSavingNewPattern);
+		expect(scope.$broadcast).toHaveBeenCalled();
+		expect(scope.$broadcast).toHaveBeenCalledWith(common.constants.broadcastMessages.error);
     });
 
 });

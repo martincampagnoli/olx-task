@@ -9,7 +9,6 @@ patternLockApp.controller('baseController',['$scope','$timeout', 'baseService', 
 				if(inputPattern == savedPattern) return true;
 				return false;
 			 }
-			
 			//submits the entered pattern to validate it against backend
 			$scope.submitPattern = function(){
 				$scope.$broadcast(common.constants.broadcastMessages.getPattern);
@@ -90,7 +89,6 @@ patternLockApp.controller('baseController',['$scope','$timeout', 'baseService', 
 			$scope.confirmPattern = function(){
 				UIHelper.blockUI();
 				$timeout(function(){
-					$scope.changeState(common.constants.states.confirm);
 					$scope.$broadcast(common.constants.broadcastMessages.getPattern);
 					$scope.secondPattern = $scope.inputPattern;
 					if ($scope.comparePattern($scope.firstPattern, $scope.secondPattern)){
